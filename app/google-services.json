@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "558963087272",
+    "firebase_url": "https://xenloc.firebaseio.com",
+    "project_id": "xenloc",
+    "storage_bucket": "xenloc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:558963087272:android:3657c7a2a673c7f3b1af9d",
+        "android_client_info": {
+          "package_name": "ph.sms.xenenergy.xenloc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "558963087272-9d4qntm603r8tgbar7at9oibs71acqgj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ph.sms.xenenergy.xenloc",
+            "certificate_hash": "035f5b6802edfbedd4fc0022752bd610058ef640"
+          }
+        },
+        {
+          "client_id": "558963087272-028ktct1gloglgv6kffmvsdse0rppnbo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_vP-j_mbzQwduoJDfbCO0KLN38YRugFw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "558963087272-028ktct1gloglgv6kffmvsdse0rppnbo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
