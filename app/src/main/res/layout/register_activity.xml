@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center|top"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center|top"
+        android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,7 +25,7 @@
             android:orientation="vertical">
 
             <android.support.design.widget.TextInputLayout
-                android:id="@+id/usernameWrapper"
+                android:id="@+id/emailWrapper"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:paddingTop="2dp">
@@ -44,6 +48,91 @@
         <LinearLayout
             android:layout_width="290dp"
             android:layout_height="50dp"
+            android:layout_marginBottom="17dp"
+            android:background="@drawable/round_corner_line"
+            android:orientation="vertical">
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/usernameWrapper"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingTop="2dp">
+
+                <EditText
+                    android:id="@+id/etUsername"
+                    android:layout_width="match_parent"
+                    android:layout_height="33dp"
+                    android:layout_marginLeft="24dp"
+                    android:layout_marginRight="20dp"
+                    android:background="@null"
+                    android:hint="Username"
+                    android:inputType="text"
+                    android:textColor="#6F6F6F"
+                    android:textColorHint="@color/label_color" />
+
+            </android.support.design.widget.TextInputLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="290dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="17dp"
+            android:background="@drawable/round_corner_line"
+            android:orientation="vertical">
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/ageWrapper"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingTop="2dp">
+
+                <EditText
+                    android:id="@+id/etAge"
+                    android:layout_width="match_parent"
+                    android:layout_height="33dp"
+                    android:layout_marginLeft="24dp"
+                    android:layout_marginRight="20dp"
+                    android:background="@null"
+                    android:hint="Age"
+                    android:inputType="number"
+                    android:textColor="#6F6F6F"
+                    android:textColorHint="@color/label_color" />
+
+            </android.support.design.widget.TextInputLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="290dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="17dp"
+            android:background="@drawable/round_corner_line"
+            android:orientation="vertical">
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/imageWrapper"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingTop="2dp">
+
+                <EditText
+                    android:id="@+id/etImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="33dp"
+                    android:layout_marginLeft="24dp"
+                    android:layout_marginRight="20dp"
+                    android:background="@null"
+                    android:hint="Image"
+                    android:inputType="text"
+                    android:textColor="#6F6F6F"
+                    android:textColorHint="@color/label_color" />
+
+            </android.support.design.widget.TextInputLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="290dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="17dp"
             android:background="@drawable/round_corner_line"
             android:orientation="vertical">
 
@@ -56,6 +145,34 @@
 
                 <EditText
                     android:id="@+id/etPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="33dp"
+                    android:layout_marginLeft="24dp"
+                    android:background="@null"
+                    android:hint="Password"
+                    android:inputType="textPassword"
+                    android:textColor="#6F6F6F"
+                    android:textColorHint="@color/label_color" />
+
+            </android.support.design.widget.TextInputLayout>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="290dp"
+            android:layout_height="50dp"
+            android:background="@drawable/round_corner_line"
+            android:orientation="vertical">
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingTop="2dp"
+                app:passwordToggleDrawable="@drawable/show_password"
+                app:passwordToggleEnabled="true">
+
+                <EditText
+                    android:id="@+id/etConfirmPassword"
                     android:layout_width="match_parent"
                     android:layout_height="33dp"
                     android:layout_marginLeft="24dp"
@@ -119,4 +236,6 @@
 
         </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

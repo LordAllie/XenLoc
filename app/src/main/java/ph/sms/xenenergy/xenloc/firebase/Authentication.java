@@ -13,12 +13,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
 import ph.sms.xenenergy.xenloc.MainActivity;
+import ph.sms.xenenergy.xenloc.model.User;
 
 /**
  * Created by Daryll-POGI on 05/12/2019.
@@ -31,6 +33,7 @@ public class Authentication {
     private FirebaseAuth mAuth;
     private Context context;
     private Activity activity;
+    private DatabaseReference mDatabase;
 
     public Authentication(Context context, Activity activity){
         this.activity=activity;
@@ -38,9 +41,10 @@ public class Authentication {
         mAuth = FirebaseAuth.getInstance();
         sharedPref = context.getSharedPreferences(APP_PROPERTY_SETTING, Context.MODE_PRIVATE);
         editor = sharedPref.edit();
+        mDatabase = FirebaseDatabase.getInstance().getReference("data");
     }
 
-    public void registerByEmail(String email, String password){
+    public void registerByEmail(final String email, final String password, final User user){
 
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(activity, new OnCompleteListener<AuthResult>() {
@@ -49,6 +53,8 @@ public class Authentication {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("FireBase", "createUserWithEmail:success");
+
+                            mDatabase.child(email.replaceAll("[-+.^:,@]","")).setValue(user);
                             FirebaseUser user = mAuth.getCurrentUser();
                             editor.putString("username", user.getEmail());
                             editor.commit();
