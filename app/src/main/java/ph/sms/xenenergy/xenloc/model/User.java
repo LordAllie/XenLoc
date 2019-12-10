@@ -10,13 +10,23 @@ public class User {
     String age;
     String password;
     String image;
+    Location location;
 
-    public User(String username, String email, String age, String password, String image) {
+    public User(String username, String email, String age, String password, String image, Location location) {
         this.username = username;
         this.email = email;
         this.age = age;
         this.password = password;
         this.image = image;
+        this.location = location;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
     }
 
     public String getUsername() {

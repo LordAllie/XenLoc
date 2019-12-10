@@ -1,13 +1,21 @@
 package ph.sms.xenenergy.xenloc;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.io.FileNotFoundException;
+
 import ph.sms.xenenergy.xenloc.firebase.Authentication;
+import ph.sms.xenenergy.xenloc.model.Location;
 import ph.sms.xenenergy.xenloc.model.User;
 
 /**
@@ -35,6 +43,17 @@ public class RegisterActivity extends AppCompatActivity {
 
 
         btnRegister=(Button)findViewById(R.id.btnRegister);
+
+        etImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                photoPickerIntent.setType("image/*");
+                startActivityForResult(photoPickerIntent, 1);
+            }
+        });
+
+
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -45,15 +64,46 @@ public class RegisterActivity extends AppCompatActivity {
                 String age = etAge.getText().toString();
                 String image = etImage.getText().toString();
 
-                if(email.equals("") || email==null || password.equals("") || password==null){
-                    Toast.makeText(RegisterActivity.this,"email and password are required.", Toast.LENGTH_LONG).show();
+                if(email.equals("") || email==null || password.equals("") || password==null || username.equals("") || username==null){
+                    Toast.makeText(RegisterActivity.this,"Email, Username and Password are required.", Toast.LENGTH_LONG).show();
                 } else if (!password.equals(confirmPassword)) {
                     Toast.makeText(RegisterActivity.this,"Password does not match", Toast.LENGTH_LONG).show();
                 } else {
-                    User user = new User(username, email, age, password, image);
+                    User user = new User(username, email, age, password, image, new Location("", ""));
                     authentication.registerByEmail(email,password, user);
                 }
             }
         });
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1)
+            if (resultCode == Activity.RESULT_OK) {
+                Uri selectedImage = data.getData();
+
+                String filePath = getPath(selectedImage);
+                String file_extn = filePath.substring(filePath.lastIndexOf(".") + 1);
+                etImage.setText(filePath);
+
+                if (file_extn.equals("img") || file_extn.equals("jpg") || file_extn.equals("jpeg") || file_extn.equals("gif") || file_extn.equals("png")) {
+                    //FINE
+                } else {
+                    //NOT IN REQUIRED FORMAT
+                }
+            }
+    }
+
+    public String getPath(Uri uri) {
+        String[] projection = {MediaStore.MediaColumns.DATA};
+        Cursor cursor = managedQuery(uri, projection, null, null, null);
+        int column_index = cursor
+                .getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+        cursor.moveToFirst();
+        String imagePath = cursor.getString(column_index);
+
+        return cursor.getString(column_index);
     }
 }
