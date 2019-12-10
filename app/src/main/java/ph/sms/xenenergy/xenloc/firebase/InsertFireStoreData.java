@@ -112,36 +112,6 @@ public class InsertFireStoreData implements OnMapReadyCallback {
     }
 
 
-    public DocumentSnapshot getUserData(String user){
-
-
-        DocumentReference docRef = db.collection("users").document(user);
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    documentSnapshot = task.getResult();
-                    if (documentSnapshot.exists()) {
-                        Log.d("Firebase", "DocumentSnapshot data: " + documentSnapshot.getData());
-                    } else {
-                        Log.d("Firebase", "No such document");
-                    }
-                } else {
-                    Log.d("Firebase", "get failed with ", task.getException());
-                }
-            }
-        });
-        return documentSnapshot;
-    }
-
-    public void showUsers(List<String> users){
-        System.out.println("size mo:"+list.size());
-        int i=0;
-        do{
-
-            i++;
-        }while (list.size()>=i);
-    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {

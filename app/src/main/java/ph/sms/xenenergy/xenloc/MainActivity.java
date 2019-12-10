@@ -17,6 +17,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -40,7 +41,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     GPSTracker gpsTracker;
     InsertFireStoreData insertFireStoreData;
     String username="";
-    FirebaseFirestore db;
+    FirebaseDatabase db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,7 +49,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         sharedPref = getSharedPreferences(APP_PROPERTY_SETTING, Context.MODE_PRIVATE);
         editor = sharedPref.edit();
-        username=sharedPref.getString("username","");
+        username=sharedPref.getString("user","");
         if(username.equals("")){
             startActivity(new Intent(MainActivity.this,LoginActivity.class));
             return;
@@ -57,14 +58,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-//        insertFireStoreData=new InsertFireStoreData(MainActivity.this);
-//        authentication=new Authentication(MainActivity.this,MainActivity.this);
-//
-//        gpsTracker=new GPSTracker(MainActivity.this);
-//        Map<String, Object> value = new HashMap<>();
-//        value.put("long",gpsTracker.getLongitude());
-//        value.put("lat",gpsTracker.getLatitude());
-//        insertFireStoreData.save(value,username);
+        insertFireStoreData=new InsertFireStoreData(MainActivity.this);
+        authentication=new Authentication(MainActivity.this,MainActivity.this);
+
+        gpsTracker=new GPSTracker(MainActivity.this);
+        Map<String, Object> value = new HashMap<>();
+        value.put("long",gpsTracker.getLongitude());
+        value.put("lat",gpsTracker.getLatitude());
+        insertFireStoreData.save(value,username);
 
     }
 
@@ -72,13 +73,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-//        getUsers();
+        getUsers();
 
     }
 
     public void getUsers(){
-        db = FirebaseFirestore.getInstance();
-        db.collection("users")
+        db = FirebaseDatabase.getInstance("users");
+        db.
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
