@@ -76,8 +76,9 @@ public class Authentication {
                             } catch (FileNotFoundException e) {
                                 e.printStackTrace();
                             }
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            editor.putString("usern", user.getEmail());
+
+
+                            editor.putString("username", user.getEmail());
                             editor.commit();
                             activity.startActivity(new Intent(context,MainActivity.class));
                         } else {
@@ -89,7 +90,7 @@ public class Authentication {
                 });
     }
 
-    public void loginByEmail(String email, String password){
+    public void loginByEmail(final String email, String password){
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(activity, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -98,7 +99,8 @@ public class Authentication {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("FireBase", "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            editor.putString("user", user.getEmail());
+
+                            editor.putString("username", email);
                             editor.commit();
                             activity.startActivity(new Intent(context,MainActivity.class));
                         } else {

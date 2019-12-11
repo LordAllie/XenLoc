@@ -1,18 +1,26 @@
 package ph.sms.xenenergy.xenloc;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
+
+import android.content.pm.PackageManager;
+
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -25,12 +33,17 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -51,6 +64,7 @@ import java.util.Map;
 
 import ph.sms.xenenergy.xenloc.firebase.Authentication;
 import ph.sms.xenenergy.xenloc.firebase.InsertFireStoreData;
+import ph.sms.xenenergy.xenloc.model.Location;
 
 import static android.content.ContentValues.TAG;
 
@@ -62,33 +76,40 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     Authentication authentication;
     GPSTracker gpsTracker;
     InsertFireStoreData insertFireStoreData;
-    String username="";
+    String username = "";
     FirebaseFirestore db;
+    static MainActivity instance;
+    LocationRequest locationRequest;
+    FusedLocationProviderClient fusedLocationProviderClient;
+    DatabaseReference mDatabase;
+    public static MainActivity getInstance() {
+        return instance;
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-
+        mDatabase = FirebaseDatabase.getInstance().getReference("data");
+        instance = this;
         sharedPref = getSharedPreferences(APP_PROPERTY_SETTING, Context.MODE_PRIVATE);
         editor = sharedPref.edit();
-        username=sharedPref.getString("user","");
-        if(username.equals("")){
-            startActivity(new Intent(MainActivity.this,LoginActivity.class));
+        username = sharedPref.getString("username", "");
+        if (username.equals("")) {
+
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
             return;
         }
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        insertFireStoreData=new InsertFireStoreData(MainActivity.this);
-        authentication=new Authentication(MainActivity.this,MainActivity.this);
+        insertFireStoreData = new InsertFireStoreData(MainActivity.this);
+        authentication = new Authentication(MainActivity.this, MainActivity.this);
 
-        gpsTracker=new GPSTracker(MainActivity.this);
-        Map<String, Object> value = new HashMap<>();
-        value.put("sLong",gpsTracker.getLongitude());
-        value.put("sLat",gpsTracker.getLatitude());
-        insertFireStoreData.save(value,username);
 
+        updateLocation();
 
 
     }
@@ -158,6 +179,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                             });
                         } catch (IOException e) {
                             e.printStackTrace();
+
                         }
                     }
                 }
@@ -171,11 +193,47 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         chatSpaceRef.addListenerForSingleValueEvent(eventListener);
     }
 
+    public void updateLocation() {
+        createLocationRequest();
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            return;
+        }
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, getPendingIntent());
+    }
+
+    private PendingIntent getPendingIntent() {
+        Intent intent = new Intent(this, XenLocationService.class);
+        intent.setAction(XenLocationService.ACTION_PROCESS_UPDATE);
+        return PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+
     protected void createLocationRequest() {
-        LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setInterval(10000);
-        locationRequest.setFastestInterval(5000);
+        locationRequest = new LocationRequest();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(5000);
+        locationRequest.setFastestInterval(3000);
+        locationRequest.setSmallestDisplacement(10f);
+
+    }
+
+    public void updateLocationBg (final String value){
+        MainActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println(value);
+                String[] a = value.split("/");
+                Toast.makeText(MainActivity.this, "VALUE:" + value, Toast.LENGTH_SHORT).show();
+//                gpsTracker = new GPSTracker(MainActivity.this);
+//                Map<String, Object> value = new HashMap<>();
+//                value.put("long", a[0]);
+//                value.put("lat", a[1]);
+//                insertFireStoreData.save(value, username);
+                mDatabase.child(username.replaceAll("[-+.^:,@]","")).child("location").setValue(new Location(a[0], a[1]));
+            }
+        });
     }
     public static Bitmap convertToMutable(Bitmap imgIn) {
         try {
