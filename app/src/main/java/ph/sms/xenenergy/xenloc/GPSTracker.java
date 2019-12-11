@@ -16,6 +16,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -50,6 +51,10 @@ public class GPSTracker extends Service implements LocationListener {
     private android.content.Context context;
     public android.content.Context mContext;
     LocationManager locationManager;
+
+    public GPSTracker() {
+    }
+
     public GPSTracker(android.content.Context context){
         this.context=context;
         this.mContext=context;
@@ -131,7 +136,7 @@ public class GPSTracker extends Service implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-
+        System.out.println(getLatitude());
 //        Map<String, Object> value = new HashMap<>();
 //        value.put("long",getLongitude());
 //        value.put("lat",getLatitude());

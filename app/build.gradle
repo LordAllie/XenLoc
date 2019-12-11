@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'key'
+            keyPassword 'temp12#$'
+            storeFile file('C:/Users/xesi/Documents/Kuryentxt/LATEST/XenLoc/app/key.jks')
+            storePassword 'temp12#$'
+        }
+    }
     compileSdkVersion 26
     defaultConfig {
         applicationId "ph.sms.xenenergy.xenloc"
@@ -14,15 +22,25 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
         }
+    }
+    configurations {
+        all {
+            exclude module: 'httpclient'
+            exclude module: 'json'
+            exclude group: 'org.apache.httpcomponents'
+        }
+    }
+    lintOptions {
+        abortOnError false
     }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
-
     implementation 'com.google.android.gms:play-services-location:11.8.0'
     compile 'com.google.firebase:firebase-storage:11.8.0'
     implementation 'com.google.firebase:firebase-firestore:11.8.0'
