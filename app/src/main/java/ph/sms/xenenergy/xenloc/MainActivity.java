@@ -116,7 +116,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         updateLocation();
-
+        //startService(new Intent(this, MyService.class));
 
     }
 
@@ -141,6 +141,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         ValueEventListener eventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                mMap.clear();
                 for(DataSnapshot ds : dataSnapshot.getChildren()) {
 
 
@@ -150,12 +151,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     DataSnapshot loc = ds.child("location");
                     final double locLong = Double.valueOf(String.valueOf(loc.child("sLong").getValue()));
                     final double locLat = Double.valueOf(String.valueOf(loc.child("sLat").getValue()));
+
                     if(image==null || image.equals("")){
                         LatLng latLng = new LatLng(locLat, locLong);
+
                         mMap.addMarker(new MarkerOptions().position(latLng).title(user));
+                        //mMap.clear();
 //                        mMap.moveCamera(CameraUpdateFactory.zoomTo(14));
 //                        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                        Toast.makeText(MainActivity.this, "GUMALAW", Toast.LENGTH_SHORT).show();
+
                     }else {
                         FirebaseStorage storage = FirebaseStorage.getInstance();
                         StorageReference ref = storage.getReferenceFromUrl("https://firebasestorage.googleapis.com/v0/b/xenloc.appspot.com/o/images%2F" + image + "?alt=media");
@@ -174,10 +178,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
                                     BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(my_image);
                                     LatLng latLng = new LatLng(locLat, locLong);
+
                                     mMap.addMarker(new MarkerOptions().position(latLng).title(user).icon(icon));
+                                    //mMap.clear();
 //                                    mMap.moveCamera(CameraUpdateFactory.zoomTo(14));
 //                                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-
+                                    Toast.makeText(MainActivity.this, "GUMALAW", Toast.LENGTH_SHORT).show();
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
@@ -198,7 +204,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 System.out.println("TAG:"+databaseError.toString());
             }
         };
-        chatSpaceRef.addListenerForSingleValueEvent(eventListener);
+        chatSpaceRef.addValueEventListener(eventListener);
     }
 
     public void updateLocation() {
@@ -233,15 +239,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             public void run() {
                 System.out.println(value);
                 String[] a = value.split("/");
-                LatLng latLng = new LatLng(Double.valueOf(a[0]), Double.valueOf(a[1]));
-                Toast.makeText(MainActivity.this, "VALUE:" + value, Toast.LENGTH_SHORT).show();
 //                gpsTracker = new GPSTracker(MainActivity.this);
 //                Map<String, Object> value = new HashMap<>();
 //                value.put("long", a[0]);
 //                value.put("lat", a[1]);
 //                insertFireStoreData.save(value, username);
-                mMap.clear();
-                getUsers();
+//                mMap.clear();
+//                getUsers();
 //                mMap.addMarker(new MarkerOptions().position(latLng).title(username));
 //                mMap.moveCamera(CameraUpdateFactory.zoomTo(14));
 //                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));

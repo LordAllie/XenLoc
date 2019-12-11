@@ -21,7 +21,6 @@ public class XenLocationService extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (intent != null) {
             final String action = intent.getAction();
-            Toast.makeText(context, action, Toast.LENGTH_SHORT).show();
             System.out.println(action);
             if (ACTION_PROCESS_UPDATE.equals(action)) {
                 LocationResult result = LocationResult.extractResult(intent);
@@ -32,7 +31,6 @@ public class XenLocationService extends BroadcastReceiver {
                             .append(location.getLongitude())
                             .toString();
                     try {
-                        Toast.makeText(context, location_string, Toast.LENGTH_SHORT).show();
                         MainActivity.getInstance().updateLocationBg(location_string);
 
                     }  catch (Exception e) {
