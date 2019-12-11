@@ -77,7 +77,7 @@ public class Authentication {
                                 e.printStackTrace();
                             }
                             FirebaseUser user = mAuth.getCurrentUser();
-                            editor.putString("username", user.getEmail());
+                            editor.putString("usern", user.getEmail());
                             editor.commit();
                             activity.startActivity(new Intent(context,MainActivity.class));
                         } else {
@@ -98,7 +98,7 @@ public class Authentication {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("FireBase", "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            editor.putString("username", user.getEmail());
+                            editor.putString("user", user.getEmail());
                             editor.commit();
                             activity.startActivity(new Intent(context,MainActivity.class));
                         } else {

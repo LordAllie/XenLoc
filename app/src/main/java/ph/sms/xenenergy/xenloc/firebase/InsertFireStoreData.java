@@ -14,6 +14,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -36,86 +38,16 @@ import static android.content.ContentValues.TAG;
  * Created by Daryll-POGI on 05/12/2019.
  */
 
-public class InsertFireStoreData implements OnMapReadyCallback {
+public class InsertFireStoreData {
     Context context;
-    private GoogleMap mMap;
-    FirebaseFirestore db;
-    List<String> list;
-    DocumentSnapshot documentSnapshot=null;
+    private DatabaseReference mDatabase;
 
     public InsertFireStoreData(Context context){
-        db = FirebaseFirestore.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
     }
 
     public void save(Map<String, Object> value, String doc){
-
-        db.collection("users").document(doc)
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("Firebase", "DocumentSnapshot successfully deleted!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("Firebase", "Error deleting document", e);
-                    }
-                });
-
-        db.collection("users").document(doc)
-                .set(value)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("FireBase", "DocumentSnapshot successfully written!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("FireBase", "Error writing document", e);
-                    }
-                });
+        mDatabase.child("data").child("Allie").child("location").setValue(value);
     }
 
-    public List<String> getUsers(){
-        list = new ArrayList<>();
-        db = FirebaseFirestore.getInstance();
-        db.collection("users")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (DocumentSnapshot document : task.getResult()) {
-                                Log.d(TAG, document.getId() + " => " + document.getData());
-
-                                String user = document.getId().toString();
-                                double longitude = Double.parseDouble(document.getData().get("long").toString());
-                                double latitude = Double.parseDouble(document.getData().get("lat").toString());
-
-                                LatLng loc = new LatLng(latitude, longitude);
-                                mMap.addMarker(new MarkerOptions().position(loc).title(""));
-                                mMap.moveCamera(CameraUpdateFactory.zoomTo(14));
-                                mMap.moveCamera(CameraUpdateFactory.newLatLng(loc));
-
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
-
-        return list;
-    }
-
-
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        getUsers();
-    }
 }
