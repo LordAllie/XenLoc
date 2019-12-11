@@ -64,12 +64,12 @@ public class RegisterActivity extends AppCompatActivity {
                 String age = etAge.getText().toString();
                 String image = etImage.getText().toString();
 
-                if(email.equals("") || email==null || password.equals("") || password==null || username.equals("") || username==null){
+                if(email.equals("") || email==null || password.equals("") || password==null || username.equals("") || username==null || image.equals("") || image==null){
                     Toast.makeText(RegisterActivity.this,"Email, Username and Password are required.", Toast.LENGTH_LONG).show();
                 } else if (!password.equals(confirmPassword)) {
                     Toast.makeText(RegisterActivity.this,"Password does not match", Toast.LENGTH_LONG).show();
                 } else {
-                    User user = new User(username, email, age, password, image, new Location("", ""));
+                    User user = new User(username, email, age, password, email, new Location("", ""));
                     authentication.registerByEmail(email,password, user);
                 }
             }

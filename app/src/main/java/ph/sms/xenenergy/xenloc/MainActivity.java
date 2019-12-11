@@ -150,7 +150,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     DataSnapshot loc = ds.child("location");
                     final double locLong = Double.valueOf(String.valueOf(loc.child("sLong").getValue()));
                     final double locLat = Double.valueOf(String.valueOf(loc.child("sLat").getValue()));
-                    if(image.equals("") || image==null){
+                    if(image==null || image.equals("")){
                         LatLng latLng = new LatLng(locLat, locLong);
                         mMap.addMarker(new MarkerOptions().position(latLng).title(user));
 //                        mMap.moveCamera(CameraUpdateFactory.zoomTo(14));
@@ -246,7 +246,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 //                mMap.moveCamera(CameraUpdateFactory.zoomTo(14));
 //                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
-                mDatabase.child(username.replaceAll("[-+.^:,@]","")).child("location").setValue(new Location(a[0], a[1]));
+                mDatabase.child(username.replaceAll("[-+.^:,@]","")).child("location").setValue(new Location(a[1], a[0]));
             }
         });
     }
