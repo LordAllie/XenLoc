@@ -7,15 +7,20 @@ import android.content.SharedPreferences;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.os.Environment;
 
 import android.content.pm.PackageManager;
 
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -24,6 +29,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -142,13 +148,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     final String user = ds.child("username").getValue(String.class);
 
                     DataSnapshot loc = ds.child("location");
-                    final double locLong = loc.child("sLong").getValue(Double.class);
-                    final double locLat = loc.child("sLat").getValue(Double.class);
+                    final double locLong = Double.valueOf(String.valueOf(loc.child("sLong").getValue()));
+                    final double locLat = Double.valueOf(String.valueOf(loc.child("sLat").getValue()));
                     if(image.equals("") || image==null){
                         LatLng latLng = new LatLng(locLat, locLong);
                         mMap.addMarker(new MarkerOptions().position(latLng).title(user));
-                        mMap.moveCamera(CameraUpdateFactory.zoomTo(14));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+//                        mMap.moveCamera(CameraUpdateFactory.zoomTo(14));
+//                        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                        Toast.makeText(MainActivity.this, "GUMALAW", Toast.LENGTH_SHORT).show();
                     }else {
                         FirebaseStorage storage = FirebaseStorage.getInstance();
                         StorageReference ref = storage.getReferenceFromUrl("https://firebasestorage.googleapis.com/v0/b/xenloc.appspot.com/o/images%2F" + image + "?alt=media");
@@ -168,8 +175,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                     BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(my_image);
                                     LatLng latLng = new LatLng(locLat, locLong);
                                     mMap.addMarker(new MarkerOptions().position(latLng).title(user).icon(icon));
-                                    mMap.moveCamera(CameraUpdateFactory.zoomTo(14));
-                                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+//                                    mMap.moveCamera(CameraUpdateFactory.zoomTo(14));
+//                                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
@@ -225,16 +233,25 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             public void run() {
                 System.out.println(value);
                 String[] a = value.split("/");
+                LatLng latLng = new LatLng(Double.valueOf(a[0]), Double.valueOf(a[1]));
                 Toast.makeText(MainActivity.this, "VALUE:" + value, Toast.LENGTH_SHORT).show();
 //                gpsTracker = new GPSTracker(MainActivity.this);
 //                Map<String, Object> value = new HashMap<>();
 //                value.put("long", a[0]);
 //                value.put("lat", a[1]);
 //                insertFireStoreData.save(value, username);
+                mMap.clear();
+                getUsers();
+//                mMap.addMarker(new MarkerOptions().position(latLng).title(username));
+//                mMap.moveCamera(CameraUpdateFactory.zoomTo(14));
+//                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+
                 mDatabase.child(username.replaceAll("[-+.^:,@]","")).child("location").setValue(new Location(a[0], a[1]));
             }
         });
     }
+
+
     public static Bitmap convertToMutable(Bitmap imgIn) {
         try {
             //this is the file going to use temporally to save the bytes.
