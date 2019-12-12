@@ -21,11 +21,13 @@ public class LoginActivity extends AppCompatActivity {
     private Authentication authentication;
     Button btnLogin,btnRegister;
     EditText etEmail,etPassword;
+    GPSTracker gpsTracker;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_activity);
-
+        gpsTracker=new GPSTracker();
+        gpsTracker.getLocation();
         authentication=new Authentication(LoginActivity.this, LoginActivity.this);
         etPassword=(EditText)findViewById(R.id.etPassword);
         etEmail=(EditText)findViewById(R.id.etEmail);
