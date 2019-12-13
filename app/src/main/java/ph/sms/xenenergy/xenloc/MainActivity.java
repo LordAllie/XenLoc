@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.os.AsyncTask;
 import android.os.Environment;
 
 import android.content.pm.PackageManager;
@@ -49,11 +50,22 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.pusher.client.Pusher;
+import com.pusher.client.PusherOptions;
+import com.pusher.client.channel.Channel;
+import com.pusher.client.channel.SubscriptionEventListener;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
@@ -61,8 +73,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+import ph.sms.xenenergy.xenloc.apiHandler.MyObservables;
+import ph.sms.xenenergy.xenloc.apiHandler.RetClassGen;
+import ph.sms.xenenergy.xenloc.apiHandler.RetrofitHandler;
+import ph.sms.xenenergy.xenloc.apiHandler.ServiceGenerator;
 import ph.sms.xenenergy.xenloc.firebase.Authentication;
 import ph.sms.xenenergy.xenloc.firebase.InsertFireStoreData;
+import ph.sms.xenenergy.xenloc.interfaces.APIHandler;
+import ph.sms.xenenergy.xenloc.list.UserAndLocation;
 import ph.sms.xenenergy.xenloc.model.Location;
 
 import static android.content.ContentValues.TAG;
@@ -106,25 +126,30 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         insertFireStoreData = new InsertFireStoreData(MainActivity.this);
         authentication = new Authentication(MainActivity.this, MainActivity.this);
 
-        getUsers();
-        updateLocation();
+//        getUsers();
+//        updateLocation();
         //startService(new Intent(this, MyService.class));
+        ServiceGenerator.changeApiBaseUrl("http://172.16.0.136:8084/XenLocation/");
+        observables = new MyObservables(ServiceGenerator.createService(APIHandler.class), this);
+        retrofitHandler = new RetrofitHandler(MainActivity.this);
+
 
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        getUsers();
-
-        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-            @Override
-            public void onInfoWindowClick(Marker marker) {
-                startActivity(new Intent(MainActivity.this,Profile.class).putExtra("username",marker.getTitle().toString()));
-
-            }
-        });
-
+//        getUsers();
+//
+//        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+//            @Override
+//            public void onInfoWindowClick(Marker marker) {
+//                startActivity(new Intent(MainActivity.this,Profile.class).putExtra("username",marker.getTitle().toString()));
+//
+//            }
+//        });
+        DownloadLocation downloadLocation = new DownloadLocation();
+        downloadLocation.execute();
     }
 
     public void getUsers(){
@@ -293,5 +318,58 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         return imgIn;
     }
+
+    private MyObservables observables;
+    private RetrofitHandler retrofitHandler;
+
+    private class DownloadLocation extends AsyncTask<String, String, String> {
+
+        @Override
+        protected String doInBackground(String... strings) {
+            String status = "";
+            RetClassGen retClassGen;
+            retClassGen = getLocationSQL("user_location");
+            if(retClassGen.getRespCode() ==200) {
+                status = retClassGen.getResponseBodyList().toString();
+            }
+            return status;
+        }
+
+        private RetClassGen getLocationSQL(String urlPath) {
+            return retrofitHandler.getLocations(urlPath);
+        }
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            System.out.println(s);
+            try {
+                String data = "{\"location\":"+s.replace("=","\":\"").replace("{","{\"").replace(", ","\", \"").replace("}","\"}").replace("}\"","}").replace("\"{","{")+"}";
+                System.out.println(s);
+                JSONObject jsnobject = new JSONObject(data);
+                JSONArray jsonArray = jsnobject.getJSONArray("location");
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject explrObject = jsonArray.getJSONObject(i);
+
+                    String image = explrObject.get("user_marker").toString();
+                    String user = explrObject.get("user_name").toString();
+                    final double locLong = Double.valueOf(explrObject.get("user_long").toString());
+                    final double locLat = Double.valueOf(explrObject.get("user_lat").toString());
+                    BitmapDescriptor icon;
+                    LatLng latLng = new LatLng(locLat, locLong);
+                    if(image==null || image.equals("")){
+
+                    }else {
+                    }
+                    mMap.addMarker(new MarkerOptions().position(latLng).title(user));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                }
+            }catch (JSONException e){
+                e.printStackTrace();
+            }
+        }
+
+    }
+
 
 }
