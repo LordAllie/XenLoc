@@ -14,11 +14,13 @@ import android.content.pm.PackageManager;
 
 import android.os.Handler;
 import android.os.SystemClock;
+import android.provider.Telephony;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
@@ -46,6 +48,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -76,6 +80,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     GPSTracker gpsTracker;
     InsertFireStoreData insertFireStoreData;
     String username = "";
+    String token = "";
     static MainActivity instance;
     LocationRequest locationRequest;
     FusedLocationProviderClient fusedLocationProviderClient;
@@ -88,17 +93,28 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map);
+        setContentView(R.layout.activity_main);
         mDatabase = FirebaseDatabase.getInstance().getReference("data");
         instance = this;
         sharedPref = getSharedPreferences(APP_PROPERTY_SETTING, Context.MODE_PRIVATE);
         editor = sharedPref.edit();
         username = sharedPref.getString("username", "");
+        token = sharedPref.getString("token", "");
+        FirebaseMessaging.getInstance().subscribeToTopic("topic");
         if (username.equals("")) {
 
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
             return;
         }
+
+        String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+
+        if (token == null || token.equals("")) {
+            mDatabase.child(username.replaceAll("[-+.^:,@]","")).child("token").setValue(refreshedToken);
+            editor.putString("token", refreshedToken).apply();
+        }
+
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -175,7 +191,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                     //mMap.clear();
 //                                    mMap.moveCamera(CameraUpdateFactory.zoomTo(14));
 //                                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                                    Toast.makeText(MainActivity.this, "GUMALAW", Toast.LENGTH_SHORT).show();
+
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
@@ -292,6 +308,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         return imgIn;
+    }
+
+    public void goToChat(View view) {
+        startActivity(new Intent(MainActivity.this, InboxActivity.class));
     }
 
 }
