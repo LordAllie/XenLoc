@@ -47,7 +47,7 @@ public class Profile extends AppCompatActivity {
 //                // Get Post object and use the values to update the UI
                 String image = dataSnapshot.child(username).child("avatar").getValue(String.class);
                 String  user = dataSnapshot.child(username).child("username").getValue(String.class);
-                String  age = dataSnapshot.child(username).child("age").getValue(String.class).toString();
+                String  age = dataSnapshot.child(username).child("age").getValue(String.class);
                 String  email = dataSnapshot.child(username).child("email").getValue(String.class);
 
                 tvEmail.setText(email);
