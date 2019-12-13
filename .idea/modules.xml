@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/XenLoc.iml" filepath="$PROJECT_DIR$/XenLoc.iml" />
+      <module fileurl="file://C:\Users\Daryll-POGI\workspace\forGenerics\New folder\XenLoc\XenLoc.iml" filepath="C:\Users\Daryll-POGI\workspace\forGenerics\New folder\XenLoc\XenLoc.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://C:\Users\Daryll-POGI\workspace\forGenerics\New folder\XenLoc\app\app.iml" filepath="C:\Users\Daryll-POGI\workspace\forGenerics\New folder\XenLoc\app\app.iml" />
     </modules>
   </component>
 </project>

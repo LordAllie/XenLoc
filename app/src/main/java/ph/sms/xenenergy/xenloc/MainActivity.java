@@ -26,6 +26,7 @@ import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 
+import com.github.nkzawa.socketio.client.IO;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -54,10 +55,6 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.pusher.client.Pusher;
-import com.pusher.client.PusherOptions;
-import com.pusher.client.channel.Channel;
-import com.pusher.client.channel.SubscriptionEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -69,6 +66,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -79,6 +77,7 @@ import java.util.Map;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
+import io.socket.emitter.Emitter;
 import ph.sms.xenenergy.xenloc.apiHandler.MyObservables;
 import ph.sms.xenenergy.xenloc.apiHandler.RetClassGen;
 import ph.sms.xenenergy.xenloc.apiHandler.RetrofitHandler;
@@ -105,6 +104,18 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     LocationRequest locationRequest;
     FusedLocationProviderClient fusedLocationProviderClient;
     DatabaseReference mDatabase;
+
+    private io.socket.client.Socket mSocket;
+
+    {
+        try {
+            mSocket = io.socket.client.IO.socket("http://172.16.0.136:8084");
+        } catch (URISyntaxException e) {
+            Log.d("myTag", e.getMessage());
+        }
+
+    }
+
     public static MainActivity getInstance() {
         return instance;
     }
@@ -116,6 +127,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_main);
         mDatabase = FirebaseDatabase.getInstance().getReference("data");
         instance = this;
+        mSocket.connect();
         sharedPref = getSharedPreferences(APP_PROPERTY_SETTING, Context.MODE_PRIVATE);
         editor = sharedPref.edit();
         username = sharedPref.getString("username", "");
@@ -149,23 +161,56 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         observables = new MyObservables(ServiceGenerator.createService(APIHandler.class), this);
         retrofitHandler = new RetrofitHandler(MainActivity.this);
 
+        String jsonString = "{message: " + "'" + message + "'" + "}";
+
+        try {
+            JSONObject jsonData = new JSONObject(jsonString);
+            mSocket.emit("CHAT", jsonData);
+            System.out.println(mSocket.emit("CHAT", jsonData));
+        } catch (JSONException e) {
+            Log.d("me", "error send message " + e.getMessage());
+            System.out.println("error send message " + e.getMessage());
+        }
+        setListening();
 
     }
+    public String message;
+
+    private void setListening() {
+        mSocket.on("CHAT", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                try {
+                    JSONObject messageJson = new JSONObject(args[0].toString());
+                    message = messageJson.getString("message");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            System.out.println("receive: " + message);
+                        }
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-//        getUsers();
+        getUsers();
 //
-//        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-//            @Override
-//            public void onInfoWindowClick(Marker marker) {
-//                startActivity(new Intent(MainActivity.this,Profile.class).putExtra("username",marker.getTitle().toString()));
-//
-//            }
-//        });
-        DownloadLocation downloadLocation = new DownloadLocation();
-        downloadLocation.execute();
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                startActivity(new Intent(MainActivity.this,Profile.class).putExtra("username",marker.getTitle().toString()));
+
+            }
+        });
+//        DownloadLocation downloadLocation = new DownloadLocation();
+//        downloadLocation.execute();
     }
 
     public void getUsers(){

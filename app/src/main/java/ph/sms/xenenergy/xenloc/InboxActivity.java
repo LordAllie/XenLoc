@@ -46,15 +46,17 @@ public class InboxActivity extends AppCompatActivity {
                 for (DataSnapshot postSnapshot: snapshot.getChildren()) {
                     String k1 = postSnapshot.getKey();
                     System.out.println(k1);
+                    int i=0;
                     for (DataSnapshot first: postSnapshot.getChildren()) {
 
                             ChatRecord inbox = first.getValue(ChatRecord.class);
-                            if (!inbox.getEmail().equals(username)) {
+                            if (!inbox.getEmail().equals(username) && i==0) {
                                 inboxList.add(inbox);
                             }
+
                             InboxAdapter adapter = new InboxAdapter(InboxActivity.this, inboxList);
                             recyclerView.setAdapter(adapter);
-
+                    i++;
 
                     }
 
@@ -73,6 +75,27 @@ public class InboxActivity extends AppCompatActivity {
 
     }
 
+
+//    public static ArrayList<ChatRecord> removeDuplicates(ArrayList<ChatRecord> list)
+//    {
+//
+//        // Create a new ArrayList
+//        ArrayList<ChatRecord> newList = new ArrayList<ChatRecord>();
+//        int
+//        // Traverse through the first list
+//        for (ChatRecord element : list) {
+//
+//            // If this element is not present in newList
+//            // then add it
+//            if (!newList.get().contains(element)) {
+//
+//                newList.add(element);
+//            }
+//        }
+//
+//        // return the new list
+//        return newList;
+//    }
 
 
 }
